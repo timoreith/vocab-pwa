@@ -62,7 +62,11 @@ body{min-height:100dvh;padding-top:var(--safe-top);padding-bottom:var(--safe-bot
   border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;
   background:var(--bg2);color:var(--text2)}
 .mode-btn.active{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
-.mode-btn .mode-icon{font-size:20px;display:block;margin-bottom:4px}
+.mode-btn .mode-icon{display:block;margin:0 auto 4px;width:20px;height:20px}
+.mode-btn .mode-icon svg{width:100%;height:100%}
+.speak-btn{background:none;border:none;cursor:pointer;color:var(--text3);
+  padding:4px;display:inline-flex;align-items:center;transition:color .2s}
+.speak-btn:active{color:var(--accent)}
 
 /* Filters */
 .filters{display:flex;gap:6px;padding:0 20px 12px;flex-wrap:wrap}
@@ -94,7 +98,9 @@ body{min-height:100dvh;padding-top:var(--safe-top);padding-bottom:var(--safe-bot
 .badge-medium{background:var(--warning-bg);color:var(--warning)}
 .badge-hard{background:var(--danger-bg);color:var(--danger)}
 .flashcard-speak{position:absolute;top:12px;left:16px;background:none;border:none;
-  cursor:pointer;font-size:20px;opacity:.5;transition:opacity .2s}
+  cursor:pointer;opacity:.5;transition:opacity .2s;color:var(--text2);padding:4px;
+  display:flex;align-items:center;justify-content:center}
+.flashcard-speak svg{width:20px;height:20px}
 .flashcard-speak:active{opacity:1}
 
 /* Swipe Buttons */
@@ -170,7 +176,7 @@ body{min-height:100dvh;padding-top:var(--safe-top);padding-bottom:var(--safe-bot
 <script>
 // Vocabulary data embedded at export time
 const DATA = {
-    "exportedAt": "2026-02-19T06:37:54+00:00",
+    "exportedAt": "2026-02-19T06:41:52+00:00",
     "words": [
         {
             "id": 25,
@@ -1679,7 +1685,15 @@ const DATA = {
         }
     ]
 };
-const EXPORT_INFO = { count: 104, date: "2026-02-19 06:37" };
+const EXPORT_INFO = { count: 104, date: "2026-02-19 06:41" };
+
+// SVG Icons (Heroicons outline)
+const ICO = {
+  flashcard: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0L12 17.25l-5.571-3m0 0L2.25 16.5 12 21.75l9.75-5.25-4.179-2.25"/></svg>',
+  quiz: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"/></svg>',
+  reverse: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>',
+  speak: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z"/></svg>',
+};
 
 // App State
 const S = {
@@ -1937,13 +1951,13 @@ function render() {
   // Mode tabs
   html += `<div class="modes">
     <button class="mode-btn ${S.mode==='flashcard'?'active':''}" onclick="setMode('flashcard')">
-      <span class="mode-icon">&#x1F4C7;</span>Flashcard
+      <span class="mode-icon">${ICO.flashcard}</span>Flashcard
     </button>
     <button class="mode-btn ${S.mode==='quiz'?'active':''}" onclick="setMode('quiz')">
-      <span class="mode-icon">&#x2753;</span>Quiz
+      <span class="mode-icon">${ICO.quiz}</span>Quiz
     </button>
     <button class="mode-btn ${S.mode==='reverse'?'active':''}" onclick="setMode('reverse')">
-      <span class="mode-icon">&#x1F504;</span>Reverse
+      <span class="mode-icon">${ICO.reverse}</span>Reverse
     </button>
   </div>`;
 
@@ -2045,7 +2059,7 @@ function renderFlashcard(w, isReverse) {
       <div class="flashcard-meta">${diffBadge}
         ${rate !== null ? `<span class="flashcard-badge" style="background:var(--bg3);color:var(--text2)">${rate}%</span>` : ''}
       </div>
-      ${!isReverse ? `<button class="flashcard-speak" onclick="event.stopPropagation();speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">&#x1F50A;</button>` : ''}
+      ${!isReverse ? `<button class="flashcard-speak" onclick="event.stopPropagation();speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">${ICO.speak}</button>` : ''}
       <span class="flashcard-label">${frontLabel}</span>
       <span class="flashcard-word">${frontText}</span>
       <span class="flashcard-hint">Tap to reveal</span>
@@ -2053,7 +2067,7 @@ function renderFlashcard(w, isReverse) {
   } else {
     html += `<div class="flashcard" style="border-color:var(--accent)">
       <div class="flashcard-meta">${diffBadge}</div>
-      <button class="flashcard-speak" onclick="event.stopPropagation();speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">&#x1F50A;</button>
+      <button class="flashcard-speak" onclick="event.stopPropagation();speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">${ICO.speak}</button>
       <span class="flashcard-label">${frontLabel}: ${frontText}</span>
       <span class="flashcard-word" style="color:var(--accent)">${backText}</span>
       ${w.example ? `<span class="flashcard-example">&ldquo;${esc(w.example)}&rdquo;</span>` : ''}
@@ -2085,8 +2099,7 @@ function renderQuiz(w) {
     </div>
     <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
       <span style="font-size:28px;font-weight:700">${questionText}</span>
-      ${!isReverse ? `<button style="background:none;border:none;font-size:20px;cursor:pointer;opacity:.5"
-        onclick="speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">&#x1F50A;</button>` : ''}
+      ${!isReverse ? `<button class="speak-btn" onclick="speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">${ICO.speak}</button>` : ''}
     </div>
     <div class="quiz-options">`;
 
