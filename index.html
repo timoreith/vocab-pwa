@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vocab">
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+<title>Vocabulary Learn</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;--bg-hover:#e2e8f0;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --accent:#6366f1;--accent-light:#818cf8;--accent-bg:rgba(99,102,241,.08);
+  --success:#22c55e;--success-bg:rgba(34,197,94,.1);
+  --danger:#ef4444;--danger-bg:rgba(239,68,68,.1);
+  --warning:#f59e0b;--warning-bg:rgba(245,158,11,.1);
+  --border:#e2e8f0;--radius:16px;--radius-sm:12px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--bg-hover:#475569;
+    --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+    --border:#334155;--accent-bg:rgba(99,102,241,.15);
+    --success-bg:rgba(34,197,94,.15);--danger-bg:rgba(239,68,68,.15);
+    --warning-bg:rgba(245,158,11,.15);
+  }
+}
+html{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);
+  max-width:500px;margin:0 auto;display:flex;flex-direction:column}
+
+/* Header */
+.header{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;background:var(--bg);
+  border-bottom:1px solid var(--border)}
+.header h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.header-stats{font-size:13px;color:var(--text2)}
+
+/* Tab Bar */
+.tabs{display:flex;gap:4px;padding:12px 20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:8px 16px;border-radius:100px;font-size:13px;font-weight:600;
+  border:none;cursor:pointer;white-space:nowrap;transition:all .2s;
+  background:var(--bg3);color:var(--text2)}
+.tab.active{background:var(--accent);color:#fff}
+
+/* Mode Selector */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px 12px}
+.mode-btn{padding:10px 8px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;
+  border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;
+  background:var(--bg2);color:var(--text2)}
+.mode-btn.active{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.mode-btn .mode-icon{font-size:20px;display:block;margin-bottom:4px}
+
+/* Filters */
+.filters{display:flex;gap:6px;padding:0 20px 12px;flex-wrap:wrap}
+.filter-chip{padding:6px 12px;border-radius:100px;font-size:12px;font-weight:500;
+  border:1.5px solid var(--border);cursor:pointer;transition:all .2s;
+  background:var(--bg2);color:var(--text2)}
+.filter-chip.active{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+
+/* Card Area */
+.card-area{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:20px;min-height:0}
+
+/* Flashcard */
+.flashcard{width:100%;max-width:400px;aspect-ratio:3/2;border-radius:var(--radius);
+  background:var(--bg2);border:2px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;cursor:pointer;transition:all .3s;position:relative;
+  box-shadow:0 4px 24px rgba(0,0,0,.06);user-select:none;-webkit-user-select:none}
+.flashcard:active{transform:scale(.98)}
+.flashcard-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+  color:var(--text3);margin-bottom:12px}
+.flashcard-word{font-size:28px;font-weight:700;text-align:center;line-height:1.3}
+.flashcard-hint{font-size:13px;color:var(--text3);margin-top:16px}
+.flashcard-example{font-size:13px;color:var(--text2);margin-top:8px;text-align:center;
+  font-style:italic;max-width:300px}
+.flashcard-meta{position:absolute;top:12px;right:16px;display:flex;gap:6px;align-items:center}
+.flashcard-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:100px}
+.badge-easy{background:var(--success-bg);color:var(--success)}
+.badge-medium{background:var(--warning-bg);color:var(--warning)}
+.badge-hard{background:var(--danger-bg);color:var(--danger)}
+.flashcard-speak{position:absolute;top:12px;left:16px;background:none;border:none;
+  cursor:pointer;font-size:20px;opacity:.5;transition:opacity .2s}
+.flashcard-speak:active{opacity:1}
+
+/* Swipe Buttons */
+.swipe-actions{display:flex;gap:16px;margin-top:24px;width:100%;max-width:400px;justify-content:center}
+.swipe-btn{flex:1;max-width:160px;padding:14px;border-radius:var(--radius-sm);font-size:15px;
+  font-weight:600;border:2px solid;cursor:pointer;transition:all .2s;text-align:center}
+.swipe-btn:active{transform:scale(.96)}
+.swipe-wrong{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+.swipe-correct{border-color:var(--success);color:var(--success);background:var(--success-bg)}
+
+/* Quiz Options */
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  width:100%;max-width:400px;margin-top:24px}
+.quiz-opt{padding:16px 12px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;
+  border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .15s;
+  background:var(--bg2);color:var(--text);line-height:1.3;word-break:break-word}
+.quiz-opt:active{transform:scale(.97)}
+.quiz-opt.selected{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.quiz-opt.correct{border-color:var(--success);background:var(--success-bg);color:var(--success)}
+.quiz-opt.wrong{border-color:var(--danger);background:var(--danger-bg);color:var(--danger)}
+.quiz-opt.faded{opacity:.4;cursor:default}
+.quiz-opt.disabled{pointer-events:none}
+
+/* Score Bar */
+.score-bar{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:var(--bg2);border-top:1px solid var(--border)}
+.score-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:100px;font-size:13px;font-weight:600}
+.score-correct{background:var(--success-bg);color:var(--success)}
+.score-wrong{background:var(--danger-bg);color:var(--danger)}
+.score-total{color:var(--text2);font-size:13px}
+.score-streak{color:var(--warning);font-size:13px;font-weight:600}
+
+/* Empty State */
+.empty{text-align:center;padding:60px 40px;color:var(--text2)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.5}
+.empty h2{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
+.empty p{font-size:14px;line-height:1.5}
+
+/* Settings Panel */
+.settings-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .3s}
+.settings-backdrop.open{opacity:1;pointer-events:auto}
+.settings-panel{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:500px;background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;
+  z-index:101;padding:24px 20px calc(20px + var(--safe-bottom));
+  transform:translateX(-50%) translateY(100%);transition:transform .3s ease}
+.settings-backdrop.open .settings-panel{transform:translateX(-50%) translateY(0)}
+.settings-title{font-size:17px;font-weight:700;margin-bottom:16px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--border)}
+.settings-label{font-size:14px;color:var(--text)}
+.settings-value{font-size:14px;color:var(--text2)}
+.toggle{width:48px;height:28px;border-radius:14px;background:var(--bg3);border:none;
+  cursor:pointer;position:relative;transition:background .2s}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;
+  background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(20px)}
+
+/* Reset Progress Button */
+.reset-btn{margin-top:16px;width:100%;padding:12px;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;border:2px solid var(--danger);color:var(--danger);
+  background:var(--danger-bg);cursor:pointer;transition:all .2s}
+.reset-btn:active{transform:scale(.98)}
+
+/* Info line */
+.info-line{font-size:11px;color:var(--text3);text-align:center;padding:8px 20px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Vocabulary data embedded at export time
+const DATA = {
+    "exportedAt": "2026-02-19T06:18:33+00:00",
+    "words": [
+        {
+            "id": 25,
+            "word": "Contingency",
+            "translations": [
+                "Eventualität",
+                "Möglichkeit",
+                "Notstand"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": "Contingency plans (Notfallpläne)",
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 11,
+            "word": "Epiphany",
+            "translations": [
+                "Erleuchtung",
+                "Offenbarung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 46,
+            "word": "adamant",
+            "translations": [
+                "hartnäckig",
+                "unerbittlich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 55,
+            "word": "adjourned",
+            "translations": [
+                "vertragt"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 78,
+            "word": "adversary",
+            "translations": [
+                "kontradiktorisch",
+                "Gegner",
+                "Widersacher"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 76,
+            "word": "allegedly",
+            "translations": [
+                "angeblich",
+                "vermeintlich",
+                "vorgeblich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 7,
+            "word": "arson",
+            "translations": [
+                "Brandstiftung",
+                "Brandlegung",
+                "Brandstiftung begehen",
+                "Brandanschlag",
+                "Brandermittler"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 88,
+            "word": "atrocious",
+            "translations": [
+                "grauenhaft",
+                "entsetzlich",
+                "scheußlich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 62,
+            "word": "benevolent",
+            "translations": [
+                "gütig",
+                "wohlwollend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 64,
+            "word": "bipartisan",
+            "translations": [
+                "überparteilich",
+                "parteiübergreifend"
+            ],
+            "category": null,
+            "difficulty": "medium",
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 57,
+            "word": "brazenness",
+            "translations": [
+                "Frechheit",
+                "Unverschämtheit"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 44,
+            "word": "brooding",
+            "translations": [
+                "grüblerisch",
+                "grübelnd"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 54,
+            "word": "calamity",
+            "translations": [
+                "Katastrophe",
+                "Unheil"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 2,
+            "incorrectCount": 0
+        },
+        {
+            "id": 5,
+            "word": "cautionary tale",
+            "translations": [
+                "abschreckendes Beispiel",
+                "warnendes Beispiel",
+                "Warnung",
+                "als Vorsichtsmaßnahme gedacht",
+                "belehrend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 83,
+            "word": "clemency",
+            "translations": [
+                "Gnade",
+                "Milde",
+                "Nachsicht"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 50,
+            "word": "commodity",
+            "translations": [
+                "Ware",
+                "Handelsware"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 95,
+            "word": "conviction",
+            "translations": [
+                "Überzeugung",
+                "Verurteilung",
+                "Überführung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 58,
+            "word": "craving",
+            "translations": [
+                "Verlangen",
+                "Gier",
+                "Gelüste"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 1
+        },
+        {
+            "id": 80,
+            "word": "crevice",
+            "translations": [
+                "Spalte",
+                "Felsspalte",
+                "Kluft"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 70,
+            "word": "cut and dry",
+            "translations": [
+                "eindeutig"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 100,
+            "word": "decapitated",
+            "translations": [
+                "geköpft",
+                "enthauptet"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 103,
+            "word": "deception",
+            "translations": [
+                "Betrug",
+                "Täuschung",
+                "Irreführung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 4,
+            "word": "decorum",
+            "translations": [
+                "Anstand"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 24,
+            "word": "deity",
+            "translations": [
+                "Gottheit"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 65,
+            "word": "depiction",
+            "translations": [
+                "Darstellung",
+                "Beschreibung",
+                "Abbildung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 26,
+            "word": "diligence",
+            "translations": [
+                "Fleiß",
+                "Sorgfalt"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 41,
+            "word": "encumbrances",
+            "translations": [
+                "Belastungen",
+                "Lasten"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 2,
+            "incorrectCount": 0
+        },
+        {
+            "id": 2,
+            "word": "endeavor",
+            "translations": [
+                "sich bemühen",
+                "Bestreben"
+            ],
+            "category": "Business",
+            "difficulty": "medium",
+            "status": "learning",
+            "example": "This project is a collaborative endeavor between multiple teams.",
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 102,
+            "word": "equestrian",
+            "translations": [
+                "Reit-",
+                "Reiter-",
+                "reiterlich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 63,
+            "word": "facetious",
+            "translations": [
+                "sarkastisch",
+                "scherzhaft"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 1
+        },
+        {
+            "id": 86,
+            "word": "fealty",
+            "translations": [
+                "Treue",
+                "Gefolgschaft",
+                "Lehenspflicht"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 81,
+            "word": "ferment",
+            "translations": [
+                "Gärmittel",
+                "Unruhe",
+                "Gärungserreger"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 51,
+            "word": "flaky",
+            "translations": [
+                "unzuverlässig",
+                "schuppig",
+                "unzuverlässig (tech.)"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 28,
+            "word": "gargantuan",
+            "translations": [
+                "gewaltig",
+                "riesig",
+                "enorm"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 31,
+            "word": "gobsmacking",
+            "translations": [
+                "atemberaubend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 91,
+            "word": "heinous",
+            "translations": [
+                "abscheulich",
+                "schrecklich",
+                "verabscheuungswürdig"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 49,
+            "word": "hunch",
+            "translations": [
+                "Ahnung",
+                "Vermutung",
+                "Gefühl"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 69,
+            "word": "indictment",
+            "translations": [
+                "Anklage",
+                "Anklageschrift",
+                "Anklagebeschluss"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 48,
+            "word": "injunction",
+            "translations": [
+                "Unterlassungsurteil",
+                "gerichtliche Verfügung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 1
+        },
+        {
+            "id": 10,
+            "word": "irritable",
+            "translations": [
+                "gereizt",
+                "reizbar",
+                "nervös",
+                "erregbar",
+                "auffahrend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 66,
+            "word": "jeopardising",
+            "translations": [
+                "gefährdend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 74,
+            "word": "judicial",
+            "translations": [
+                "gerichtlich",
+                "richterlich",
+                "rechtsprechend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 27,
+            "word": "knuckles",
+            "translations": [
+                "Knöchel"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 34,
+            "word": "mallet",
+            "translations": [
+                "Holzhammer",
+                "Schlägel"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 14,
+            "word": "mitigate",
+            "translations": [
+                "mildern"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 30,
+            "word": "monosyllabic",
+            "translations": [
+                "einsilbig"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 68,
+            "word": "mug shot",
+            "translations": [
+                "Fahndungsfoto",
+                "Polizeifoto",
+                "erkennungsdienstliches Foto"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 8,
+            "word": "mutiny",
+            "translations": [
+                "meutern",
+                "Meuterei",
+                "Aufruhr",
+                "versuchte Meuterei",
+                "Sepoyaufstand"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 20,
+            "word": "naught",
+            "translations": [
+                "nichts",
+                "Null",
+                "Verderben",
+                "vergebens",
+                "fast null"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": "was for naught",
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 53,
+            "word": "nauseous",
+            "translations": [
+                "übel",
+                "ekelerregend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 99,
+            "word": "neutered",
+            "translations": [
+                "kastriert"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 82,
+            "word": "nits",
+            "translations": [
+                "Nissen",
+                "Läuseeier"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 85,
+            "word": "obstruction",
+            "translations": [
+                "Behinderung",
+                "Sperre",
+                "Blockierung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 84,
+            "word": "partisanship",
+            "translations": [
+                "Parteilichkeit",
+                "Vetternwirtschaft",
+                "Parteinahme"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 42,
+            "word": "patronizing",
+            "translations": [
+                "herablassend",
+                "gönnerhaft"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": "patronizing tone",
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 32,
+            "word": "pent-up",
+            "translations": [
+                "aufgestaut"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 52,
+            "word": "pesky",
+            "translations": [
+                "lästig"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 18,
+            "word": "pizazz",
+            "translations": [
+                "Schwung",
+                "Pfiff",
+                "Flair",
+                "Elan",
+                "Energie"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 1
+        },
+        {
+            "id": 71,
+            "word": "pokey",
+            "translations": [
+                "eng",
+                "Knast",
+                "Kittchen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 60,
+            "word": "potty-trained",
+            "translations": [
+                "sauber",
+                "stubenrein"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 2,
+            "incorrectCount": 0
+        },
+        {
+            "id": 61,
+            "word": "predicament",
+            "translations": [
+                "Zwickmühle",
+                "Zwangslage",
+                "Dilemma"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 1
+        },
+        {
+            "id": 73,
+            "word": "prosecutor",
+            "translations": [
+                "Staatsanwalt",
+                "Ankläger",
+                "Kläger"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 12,
+            "word": "pun",
+            "translations": [
+                "Wortspiel",
+                "Wortwitz"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 2,
+            "incorrectCount": 0
+        },
+        {
+            "id": 59,
+            "word": "reluctant",
+            "translations": [
+                "abgebeigt",
+                "zögerlich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 21,
+            "word": "repugnant",
+            "translations": [
+                "abscheulich",
+                "abstoßend",
+                "widerlich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 40,
+            "word": "rodents",
+            "translations": [
+                "Nagetiere"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 89,
+            "word": "scrutiny",
+            "translations": [
+                "Untersuchung",
+                "Kontrolle",
+                "Prüfung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 23,
+            "word": "scutwork",
+            "translations": [
+                "Drecksarbeit"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 1,
+            "word": "serendipity",
+            "translations": [
+                "glücklicher Zufall"
+            ],
+            "category": "Daily Life",
+            "difficulty": "hard",
+            "status": "new",
+            "example": "Finding this book in the library was pure serendipity.",
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 45,
+            "word": "severed",
+            "translations": [
+                "getrennt",
+                "abgetrennt"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 79,
+            "word": "soldering iron",
+            "translations": [
+                "Löteisen",
+                "Lötkolben"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 19,
+            "word": "soundest",
+            "translations": [
+                "taktfesteste"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": "soundest sleep",
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 96,
+            "word": "statute of limitation",
+            "translations": [
+                "Verjährung",
+                "Verjährungsfrist"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 97,
+            "word": "sting operation",
+            "translations": [
+                "verdeckte Ermittlung",
+                "verdeckte Operation"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 36,
+            "word": "stipulation",
+            "translations": [
+                "Bedingung",
+                "Vereinbarung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 39,
+            "word": "subletting",
+            "translations": [
+                "Untermiete"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": "we are subletting from them. = wir sind Untermieter bei ihnen.",
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 92,
+            "word": "subpoenaing",
+            "translations": [
+                "vorladend"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 77,
+            "word": "the whole nine yards",
+            "translations": [
+                "das volle Programm",
+                "die volle Breitseite"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 29,
+            "word": "to anoint",
+            "translations": [
+                "salben",
+                "jmd. weihen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 35,
+            "word": "to bribe",
+            "translations": [
+                "bestechen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 75,
+            "word": "to call sb. on the bluff",
+            "translations": [
+                "es darauf ankommen lassen",
+                "jdn. zwingen, Farbe zu bekennen",
+                "jdn. auf die Probe stellen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 16,
+            "word": "to chime in",
+            "translations": [
+                "einfallen",
+                "sich einklinken",
+                "zustimmen",
+                "sich einschalten",
+                "mit jdm.\/etw. harmonieren"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 1
+        },
+        {
+            "id": 15,
+            "word": "to commend",
+            "translations": [
+                "belobigen",
+                "loben",
+                "jdn. preisen",
+                "jdn.\/etw. anempfehlen",
+                "jdn.\/etw. anpreisen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 90,
+            "word": "to commend sb.",
+            "translations": [
+                "jdn. preisen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 87,
+            "word": "to gaslight sb.",
+            "translations": [
+                "jdn. gezielt verunsichern",
+                "jdn. wahnsinnig machen",
+                "jdn. zum Wahnsinn treiben"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 67,
+            "word": "to instill sth.",
+            "translations": [
+                "etw. einflößen",
+                "etw. einträufeln",
+                "etw. instillieren"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 56,
+            "word": "to nurture",
+            "translations": [
+                "schulen",
+                "jdn.\/etw. aufziehen",
+                "jdn.\/etw. erziehen",
+                "etw. nähren",
+                "etw. hegen",
+                "erziehen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 47,
+            "word": "to peruse",
+            "translations": [
+                "durchsehen",
+                "prüfen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 33,
+            "word": "to stroll",
+            "translations": [
+                "schlendern",
+                "bummeln",
+                "spazieren"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 94,
+            "word": "to torment",
+            "translations": [
+                "quälen",
+                "foltern",
+                "peinigen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 9,
+            "word": "to waive",
+            "translations": [
+                "einen Rechtsanspruch nicht vollstrecken",
+                "etw. abbedingen",
+                "etw. aufgeben",
+                "etw. erlassen",
+                "etw. abtun"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 43,
+            "word": "to wit",
+            "translations": [
+                "nämlich",
+                "und zwar"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 17,
+            "word": "towing",
+            "translations": [
+                "schleppend",
+                "treidelnd",
+                "Abschleppen",
+                "Treideln",
+                "Freischleppen"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": "towing company",
+            "correctCount": 0,
+            "incorrectCount": 1
+        },
+        {
+            "id": 98,
+            "word": "trafficking",
+            "translations": [
+                "Schwarzhandel",
+                "Schieberei",
+                "illegaler Handel"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 104,
+            "word": "treachery",
+            "translations": [
+                "Verrat",
+                "Heimtücke"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 6,
+            "word": "ubiquity",
+            "translations": [
+                "Allgegenwart",
+                "Ubiquität",
+                "Ubiquitätslehre"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 1,
+            "incorrectCount": 0
+        },
+        {
+            "id": 13,
+            "word": "uncanny",
+            "translations": [
+                "unheimlich"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 72,
+            "word": "unredacted",
+            "translations": [
+                "ungeschwärzt",
+                "unredigiert"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "learning",
+            "example": null,
+            "correctCount": 2,
+            "incorrectCount": 0
+        },
+        {
+            "id": 22,
+            "word": "untenable",
+            "translations": [
+                "unhaltbar",
+                "unvertretbar",
+                "haltlos [Theorie]"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 37,
+            "word": "viable",
+            "translations": [
+                "machbar",
+                "durchführbar"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 93,
+            "word": "vindication",
+            "translations": [
+                "Rechtfertigung",
+                "Verteidigung",
+                "Ehrenrettung"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 38,
+            "word": "virtuous",
+            "translations": [
+                "tugendhaft"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 101,
+            "word": "visage",
+            "translations": [
+                "Antlitz",
+                "Gesicht",
+                "Fratze"
+            ],
+            "category": null,
+            "difficulty": null,
+            "status": "new",
+            "example": null,
+            "correctCount": 0,
+            "incorrectCount": 0
+        },
+        {
+            "id": 3,
+            "word": "wanderlust",
+            "translations": [
+                "Fernweh",
+                "Reiselust"
+            ],
+            "category": "Travel",
+            "difficulty": "easy",
+            "status": "mastered",
+            "example": "Her wanderlust led her to explore many different countries.",
+            "correctCount": 0,
+            "incorrectCount": 0
+        }
+    ]
+};
+const EXPORT_INFO = { count: 104, date: "2026-02-19 06:18" };
+
+// App State
+const S = {
+  mode: localStorage.getItem('v_mode') || 'flashcard', // flashcard | quiz | reverse
+  filter: localStorage.getItem('v_filter') || 'all', // all | new | learning | mastered
+  diffFilter: localStorage.getItem('v_diff') || 'all', // all | easy | medium | hard
+  catFilter: localStorage.getItem('v_cat') || 'all',
+  autoSpeak: localStorage.getItem('v_speak') === 'true',
+  // Session
+  sessionCorrect: 0,
+  sessionWrong: 0,
+  streak: 0,
+  // Current card
+  currentWord: null,
+  revealed: false,
+  quizOptions: [],
+  quizCorrectIdx: -1,
+  quizAnswered: false,
+  quizSelectedIdx: -1,
+  settingsOpen: false,
+};
+
+// Load progress from localStorage
+function getProgress(id) {
+  try { return JSON.parse(localStorage.getItem('v_p_' + id)) || { c: 0, w: 0 }; }
+  catch { return { c: 0, w: 0 }; }
+}
+function setProgress(id, p) {
+  localStorage.setItem('v_p_' + id, JSON.stringify(p));
+}
+function resetAllProgress() {
+  DATA.words.forEach(w => localStorage.removeItem('v_p_' + w.id));
+  S.sessionCorrect = 0;
+  S.sessionWrong = 0;
+  S.streak = 0;
+  render();
+}
+
+// Get available categories
+function getCategories() {
+  const cats = new Set();
+  DATA.words.forEach(w => { if (w.category) cats.add(w.category); });
+  return [...cats].sort();
+}
+
+// Filter words
+function getFilteredWords() {
+  return DATA.words.filter(w => {
+    if (S.filter !== 'all' && w.status !== S.filter) return false;
+    if (S.diffFilter !== 'all' && w.difficulty !== S.diffFilter) return false;
+    if (S.catFilter !== 'all' && w.category !== S.catFilter) return false;
+    return true;
+  });
+}
+
+// Weighted random selection
+function pickWord(words) {
+  if (!words.length) return null;
+  const weighted = words.map(w => {
+    const p = getProgress(w.id);
+    const total = p.c + p.w + w.correctCount + w.incorrectCount;
+    const correct = p.c + w.correctCount;
+    const rate = total > 0 ? correct / total : 0;
+    return { w, weight: Math.max(1, 10 - total) + (1 - rate) * 5 };
+  });
+  const totalW = weighted.reduce((s, x) => s + x.weight, 0);
+  let r = Math.random() * totalW, cum = 0;
+  for (const x of weighted) {
+    cum += x.weight;
+    if (r <= cum) return x.w;
+  }
+  return weighted[weighted.length - 1].w;
+}
+
+// Generate quiz options
+function makeQuizOptions(word, allWords) {
+  const isReverse = S.mode === 'reverse';
+  let correctAnswer, wrongPool;
+
+  if (isReverse) {
+    correctAnswer = word.word;
+    wrongPool = allWords.filter(w => w.id !== word.id).map(w => w.word);
+  } else {
+    correctAnswer = word.translations[Math.floor(Math.random() * word.translations.length)];
+    wrongPool = [];
+    allWords.forEach(w => {
+      if (w.id !== word.id) {
+        w.translations.forEach(t => wrongPool.push(t));
+      }
+    });
+  }
+
+  // Shuffle and pick 3 unique wrong answers
+  const shuffled = wrongPool.sort(() => Math.random() - .5);
+  const wrongs = [];
+  const seen = new Set([correctAnswer.toLowerCase()]);
+  for (const t of shuffled) {
+    if (!seen.has(t.toLowerCase()) && wrongs.length < 3) {
+      wrongs.push(t);
+      seen.add(t.toLowerCase());
+    }
+  }
+
+  const options = [correctAnswer, ...wrongs];
+  // Shuffle
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+  return { options, correctIdx: options.indexOf(correctAnswer) };
+}
+
+// Text-to-Speech
+function speak(text, lang) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang || 'en-US';
+  const voices = speechSynthesis.getVoices();
+  if (lang === 'en-US') {
+    const zoey = voices.find(v => v.name.includes('Zoey'));
+    if (zoey) u.voice = zoey;
+  }
+  speechSynthesis.speak(u);
+}
+if ('speechSynthesis' in window) speechSynthesis.getVoices();
+
+// Next card
+function nextCard() {
+  const words = getFilteredWords();
+  if (words.length === 0) { S.currentWord = null; render(); return; }
+
+  const word = pickWord(words);
+  S.currentWord = word;
+  S.revealed = false;
+  S.quizAnswered = false;
+  S.quizSelectedIdx = -1;
+
+  if (S.mode === 'quiz' || S.mode === 'reverse') {
+    if (words.length >= 4) {
+      const q = makeQuizOptions(word, DATA.words);
+      S.quizOptions = q.options;
+      S.quizCorrectIdx = q.correctIdx;
+    } else {
+      // Fall back to flashcard if < 4 words
+      S.quizOptions = [];
+    }
+  }
+
+  render();
+
+  if (S.autoSpeak && S.mode !== 'reverse') {
+    setTimeout(() => speak(word.word, 'en-US'), 300);
+  }
+}
+
+// Record answer
+function recordAnswer(correct) {
+  if (!S.currentWord) return;
+  const p = getProgress(S.currentWord.id);
+  if (correct) { p.c++; S.sessionCorrect++; S.streak++; }
+  else { p.w++; S.sessionWrong++; S.streak = 0; }
+  setProgress(S.currentWord.id, p);
+}
+
+// Handle flashcard reveal
+function revealCard() {
+  if (!S.revealed) {
+    S.revealed = true;
+    render();
+    if (S.autoSpeak && S.mode === 'reverse') {
+      speak(S.currentWord.word, 'en-US');
+    }
+  }
+}
+
+// Handle flashcard swipe buttons
+function flashcardAnswer(correct) {
+  recordAnswer(correct);
+  nextCard();
+}
+
+// Handle quiz option select
+function selectQuizOption(idx) {
+  if (S.quizAnswered) return;
+  S.quizSelectedIdx = idx;
+  S.quizAnswered = true;
+  const correct = idx === S.quizCorrectIdx;
+  recordAnswer(correct);
+  render();
+  // Auto-advance after delay
+  setTimeout(nextCard, correct ? 800 : 1800);
+}
+
+// Set mode
+function setMode(m) {
+  S.mode = m;
+  localStorage.setItem('v_mode', m);
+  nextCard();
+}
+
+// Set filter
+function setFilter(f) {
+  S.filter = f;
+  localStorage.setItem('v_filter', f);
+  nextCard();
+}
+
+function setDiffFilter(f) {
+  S.diffFilter = f;
+  localStorage.setItem('v_diff', f);
+  nextCard();
+}
+
+function setCatFilter(f) {
+  S.catFilter = f;
+  localStorage.setItem('v_cat', f);
+  nextCard();
+}
+
+function toggleSettings() {
+  S.settingsOpen = !S.settingsOpen;
+  render();
+}
+
+function toggleAutoSpeak() {
+  S.autoSpeak = !S.autoSpeak;
+  localStorage.setItem('v_speak', S.autoSpeak);
+  render();
+}
+
+// Escape HTML
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// Render
+function render() {
+  const app = document.getElementById('app');
+  const words = getFilteredWords();
+  const cats = getCategories();
+  const w = S.currentWord;
+
+  let html = '';
+
+  // Header
+  html += `<div class="header">
+    <div><h1>Vocabulary</h1>
+    <span class="header-stats">${EXPORT_INFO.count} words</span></div>
+    <button onclick="toggleSettings()" style="background:none;border:none;font-size:22px;cursor:pointer;padding:4px">&#9881;</button>
+  </div>`;
+
+  // Mode tabs
+  html += `<div class="modes">
+    <button class="mode-btn ${S.mode==='flashcard'?'active':''}" onclick="setMode('flashcard')">
+      <span class="mode-icon">&#x1F4C7;</span>Flashcard
+    </button>
+    <button class="mode-btn ${S.mode==='quiz'?'active':''}" onclick="setMode('quiz')">
+      <span class="mode-icon">&#x2753;</span>Quiz
+    </button>
+    <button class="mode-btn ${S.mode==='reverse'?'active':''}" onclick="setMode('reverse')">
+      <span class="mode-icon">&#x1F504;</span>Reverse
+    </button>
+  </div>`;
+
+  // Filters
+  html += `<div class="tabs">
+    ${['all','new','learning','mastered'].map(f =>
+      `<button class="tab ${S.filter===f?'active':''}" onclick="setFilter('${f}')">${f==='all'?'All':f[0].toUpperCase()+f.slice(1)}</button>`
+    ).join('')}
+    ${['all','easy','medium','hard'].map(f =>
+      `<button class="tab ${S.diffFilter===f?'active':''}" onclick="setDiffFilter('${f}')">${f==='all'?'Any Difficulty':f[0].toUpperCase()+f.slice(1)}</button>`
+    ).join('')}
+  </div>`;
+
+  // Category filters (only if categories exist)
+  if (cats.length > 0) {
+    html += `<div class="filters">
+      <button class="filter-chip ${S.catFilter==='all'?'active':''}" onclick="setCatFilter('all')">All Categories</button>
+      ${cats.map(c => `<button class="filter-chip ${S.catFilter===c?'active':''}" onclick="setCatFilter('${esc(c)}')">${esc(c)}</button>`).join('')}
+    </div>`;
+  }
+
+  // Card Area
+  if (!w || words.length === 0) {
+    html += `<div class="card-area"><div class="empty">
+      <div class="empty-icon">&#x1F4DA;</div>
+      <h2>No words</h2>
+      <p>${words.length === 0 ? 'No words match your filters. Try adjusting them.' : 'Loading...'}</p>
+    </div></div>`;
+  } else if (S.mode === 'flashcard') {
+    html += renderFlashcard(w, false);
+  } else if (S.mode === 'reverse') {
+    html += renderFlashcard(w, true);
+  } else {
+    html += renderQuiz(w);
+  }
+
+  // Score Bar
+  const total = S.sessionCorrect + S.sessionWrong;
+  if (total > 0) {
+    html += `<div class="score-bar">
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="score-pill score-correct">&#10003; ${S.sessionCorrect}</span>
+        <span class="score-pill score-wrong">&#10007; ${S.sessionWrong}</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        ${S.streak >= 3 ? `<span class="score-streak">&#x1F525; ${S.streak}</span>` : ''}
+        <span class="score-total">${total} total &middot; ${total > 0 ? Math.round(S.sessionCorrect/total*100) : 0}%</span>
+      </div>
+    </div>`;
+  }
+
+  // Export info
+  html += `<div class="info-line">Exported ${esc(EXPORT_INFO.date)} &middot; ${words.length} of ${EXPORT_INFO.count} words</div>`;
+
+  // Settings panel
+  html += `<div class="settings-backdrop ${S.settingsOpen?'open':''}" onclick="toggleSettings()">
+    <div class="settings-panel" onclick="event.stopPropagation()">
+      <div class="settings-title">Settings</div>
+      <div class="settings-row">
+        <span class="settings-label">Auto-pronounce</span>
+        <button class="toggle ${S.autoSpeak?'on':''}" onclick="toggleAutoSpeak()"></button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Session Progress</span>
+        <span class="settings-value">${S.sessionCorrect + S.sessionWrong} answers</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Words in filter</span>
+        <span class="settings-value">${words.length}</span>
+      </div>
+      <button class="reset-btn" onclick="if(confirm('Reset all learning progress?')){resetAllProgress();toggleSettings();}">
+        Reset Learning Progress
+      </button>
+    </div>
+  </div>`;
+
+  app.innerHTML = html;
+}
+
+function renderFlashcard(w, isReverse) {
+  const p = getProgress(w.id);
+  const totalR = p.c + p.w + w.correctCount + w.incorrectCount;
+  const correctR = p.c + w.correctCount;
+  const rate = totalR > 0 ? Math.round(correctR / totalR * 100) : null;
+
+  const frontLabel = isReverse ? 'GERMAN' : 'ENGLISH';
+  const frontText = isReverse ? esc(w.translations.join(', ')) : esc(w.word);
+  const backLabel = isReverse ? 'ENGLISH' : 'GERMAN';
+  const backText = isReverse ? esc(w.word) : esc(w.translations.join(', '));
+
+  const diffBadge = w.difficulty
+    ? `<span class="flashcard-badge badge-${w.difficulty}">${w.difficulty}</span>`
+    : '';
+
+  let html = `<div class="card-area">`;
+
+  if (!S.revealed) {
+    html += `<div class="flashcard" onclick="revealCard()">
+      <div class="flashcard-meta">${diffBadge}
+        ${rate !== null ? `<span class="flashcard-badge" style="background:var(--bg3);color:var(--text2)">${rate}%</span>` : ''}
+      </div>
+      ${!isReverse ? `<button class="flashcard-speak" onclick="event.stopPropagation();speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">&#x1F50A;</button>` : ''}
+      <span class="flashcard-label">${frontLabel}</span>
+      <span class="flashcard-word">${frontText}</span>
+      <span class="flashcard-hint">Tap to reveal</span>
+    </div>`;
+  } else {
+    html += `<div class="flashcard" style="border-color:var(--accent)">
+      <div class="flashcard-meta">${diffBadge}</div>
+      <button class="flashcard-speak" onclick="event.stopPropagation();speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">&#x1F50A;</button>
+      <span class="flashcard-label">${frontLabel}: ${frontText}</span>
+      <span class="flashcard-word" style="color:var(--accent)">${backText}</span>
+      ${w.example ? `<span class="flashcard-example">&ldquo;${esc(w.example)}&rdquo;</span>` : ''}
+    </div>
+    <div class="swipe-actions">
+      <button class="swipe-btn swipe-wrong" onclick="flashcardAnswer(false)">&#10007; Wrong</button>
+      <button class="swipe-btn swipe-correct" onclick="flashcardAnswer(true)">&#10003; Correct</button>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function renderQuiz(w) {
+  const isReverse = S.mode === 'reverse';
+
+  if (S.quizOptions.length < 4) {
+    // Fall back to flashcard rendering if not enough options
+    return renderFlashcard(w, false);
+  }
+
+  const questionLabel = isReverse ? 'What is the English word for...' : 'What does this mean?';
+  const questionText = isReverse ? esc(w.translations.join(', ')) : esc(w.word);
+
+  let html = `<div class="card-area">
+    <div style="text-align:center;margin-bottom:8px">
+      <span class="flashcard-label">${questionLabel}</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+      <span style="font-size:28px;font-weight:700">${questionText}</span>
+      ${!isReverse ? `<button style="background:none;border:none;font-size:20px;cursor:pointer;opacity:.5"
+        onclick="speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">&#x1F50A;</button>` : ''}
+    </div>
+    <div class="quiz-options">`;
+
+  S.quizOptions.forEach((opt, i) => {
+    let cls = '';
+    if (S.quizAnswered) {
+      if (i === S.quizCorrectIdx) cls = 'correct disabled';
+      else if (i === S.quizSelectedIdx && i !== S.quizCorrectIdx) cls = 'wrong disabled';
+      else cls = 'faded disabled';
+    } else {
+      cls = '';
+    }
+    html += `<button class="quiz-opt ${cls}" onclick="selectQuizOption(${i})">${esc(opt)}</button>`;
+  });
+
+  html += `</div></div>`;
+  return html;
+}
+
+// Initialize
+nextCard();
+</script>
+</body>
+</html>
