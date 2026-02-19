@@ -103,13 +103,12 @@ body{min-height:100dvh;padding-top:var(--safe-top);padding-bottom:var(--safe-bot
 .flashcard-speak svg{width:20px;height:20px}
 .flashcard-speak:active{opacity:1}
 
-/* Swipe Buttons */
-.swipe-actions{display:flex;gap:16px;margin-top:24px;width:100%;max-width:400px;justify-content:center}
-.swipe-btn{flex:1;max-width:160px;padding:14px;border-radius:var(--radius-sm);font-size:15px;
-  font-weight:600;border:2px solid;cursor:pointer;transition:all .2s;text-align:center}
-.swipe-btn:active{transform:scale(.96)}
-.swipe-wrong{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
-.swipe-correct{border-color:var(--success);color:var(--success);background:var(--success-bg)}
+/* Next Button */
+.next-action{margin-top:24px;width:100%;max-width:400px;display:flex;justify-content:center}
+.next-btn{padding:14px 48px;border-radius:var(--radius-sm);font-size:15px;
+  font-weight:600;border:2px solid var(--accent);color:var(--accent);background:var(--accent-bg);
+  cursor:pointer;transition:all .2s;text-align:center}
+.next-btn:active{transform:scale(.96)}
 
 /* Quiz Options */
 .quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;
@@ -176,7 +175,7 @@ body{min-height:100dvh;padding-top:var(--safe-top);padding-bottom:var(--safe-bot
 <script>
 // Vocabulary data embedded at export time
 const DATA = {
-    "exportedAt": "2026-02-19T06:41:52+00:00",
+    "exportedAt": "2026-02-19T06:47:47+00:00",
     "words": [
         {
             "id": 25,
@@ -1685,7 +1684,7 @@ const DATA = {
         }
     ]
 };
-const EXPORT_INFO = { count: 104, date: "2026-02-19 06:41" };
+const EXPORT_INFO = { count: 104, date: "2026-02-19 06:47" };
 
 // SVG Icons (Heroicons outline)
 const ICO = {
@@ -1868,12 +1867,6 @@ function revealCard() {
       speak(S.currentWord.word, 'en-US');
     }
   }
-}
-
-// Handle flashcard swipe buttons
-function flashcardAnswer(correct) {
-  recordAnswer(correct);
-  nextCard();
 }
 
 // Handle quiz option select
@@ -2072,9 +2065,8 @@ function renderFlashcard(w, isReverse) {
       <span class="flashcard-word" style="color:var(--accent)">${backText}</span>
       ${w.example ? `<span class="flashcard-example">&ldquo;${esc(w.example)}&rdquo;</span>` : ''}
     </div>
-    <div class="swipe-actions">
-      <button class="swipe-btn swipe-wrong" onclick="flashcardAnswer(false)">&#10007; Wrong</button>
-      <button class="swipe-btn swipe-correct" onclick="flashcardAnswer(true)">&#10003; Correct</button>
+    <div class="next-action">
+      <button class="next-btn" onclick="nextCard()">Next</button>
     </div>`;
   }
 
@@ -2099,7 +2091,7 @@ function renderQuiz(w) {
     </div>
     <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
       <span style="font-size:28px;font-weight:700">${questionText}</span>
-      ${!isReverse ? `<button class="speak-btn" onclick="speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">${ICO.speak}</button>` : ''}
+      <button class="speak-btn" onclick="speak('${esc(w.word).replace(/'/g,"\\'")}','en-US')">${ICO.speak}</button>
     </div>
     <div class="quiz-options">`;
 
